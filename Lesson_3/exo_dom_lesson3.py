@@ -97,6 +97,11 @@ for elem in TopContributors:
 def getMean(contributor):
     return contributor.meanRepoStars
 
+print("######################Sorted list ###############################")
+      
+topContributorsSorted = sorted(TopContributors, key=getMean)
+for elem in topContributorsSorted: elem.printme()
+
 #for elem in sorted(TopContributors , key = getMean):
  #    elem.printme()
 
