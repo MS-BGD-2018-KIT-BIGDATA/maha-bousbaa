@@ -6,26 +6,22 @@ from pygithub3 import Github
 
 URL = 'https://gist.githubusercontent.com/paulmillr/2657075/raw/e522ae257f83cb921d4a63d2e5fde4c6065b2fa2/active.md'
 
+f = open("pwd.txt","r") 
+
 username = "mbousbaa"
-password = "steptwo2"
-
-
+password = f.readline().strip()
 gh = Github(username, password)
+
 
 def getMeanStars(username):
     
     star_counts = []
     mean = 0.0
-    
-    
+  
     repos = gh.get_user(username).get_repos('all')
     star_counts = [repo.stargazers_count for repo in repos]
     return reduce(lambda x, y: x + y, star_counts) / len(star_counts)
   
-    
-    
-    
-
 
 def getSoupFromURL(url, method='get', data={}):
 
