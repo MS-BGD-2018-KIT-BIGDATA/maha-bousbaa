@@ -1,27 +1,31 @@
 import requests
 from bs4 import BeautifulSoup
-import unidecode
+from functools import reduce
 
+from pygithub3 import Github
 
 URL = 'https://gist.githubusercontent.com/paulmillr/2657075/raw/e522ae257f83cb921d4a63d2e5fde4c6065b2fa2/active.md'
 
-
-YEARS = ['2010', '2011', '2012', '2013', '2014', '2015']
-INDEX_CIT=[1,4,10,13]
-INDEX_EUR=[0,3,9,12]
-LABELS=["TOTAL A"," TOTAL B","TOTAL C","TOTAL D"]
-
-# getSoupObjectForYear retourne l'objet BeautifulSoup object associé aux resultat
-# des comptes de Paris de l'année passée en paramètre"""
-
-def getSoupObjectForYear(year='2010'):
-
-    url = URL + str(year)
-    return getSoupFromURL(url, 'get')
+username = "mbousbaa"
+password = "steptwo2"
 
 
-# getSoupFromURL retourne l'objet BeautifulSoup object associé a l'url donnée
-# en paramètre en appliquant la methode 'get ou 'post'
+gh = Github(username, password)
+
+def getMeanStars(username):
+    
+    star_counts = []
+    mean = 0.0
+    
+    
+    repos = gh.get_user(username).get_repos('all')
+    star_counts = [repo.stargazers_count for repo in repos]
+    return reduce(lambda x, y: x + y, star_counts) / len(star_counts)
+  
+    
+    
+    
+
 
 def getSoupFromURL(url, method='get', data={}):
 
@@ -45,28 +49,65 @@ def getSoupFromURL(url, method='get', data={}):
         print("HTTP connexion error or Invalid URL: %s", url)
         return None
 
-
-
-
-def extractFigure(row):
+# classe qui définit les objets user contributeur Git
+class Contributor:
+  
+    def __init__(self,name = "",ranking ="",contributors=0,location="",meanRepoStars=0):
+        self.name = name
+        self.ranking = ranking
+        self.contributors = contributors
+        self.location = location
+        self.meanRepoStars=0
     
-    return(int("".join(unidecode.unidecode(row).strip().split())))
+    def printme(self):
+        print( "Name: "+ self.name + "; ranking: " + self.ranking + "; Stars: " + str(self.meanRepoStars))
+    
+  
 
-def processDataYear(datalist):
-   
-    figures_CIT=[extractFigure(datalist[i].get_text()) for i in INDEX_CIT]
-    figures_EUR=[extractFigure(datalist[i].get_text()) for i in INDEX_EUR]
-    return zip(LABELS,figures_CIT,figures_EUR)
-    
-def getDataFromParisAccounts():
-    
-    
-    resultDataList = {x: "" for x in YEARS}
-    for year in YEARS:
-        dataFromUrl = getSoupObjectForYear(URL + year).select(".montantpetit.G")
-        resultDataList[year]= list(processDataYear(dataFromUrl))
+# fonction qui renvoie la liste des contributeurs
+# ( name, ranking, contributions,location)    
         
-    return resultDataList
+def getTopContributors(num):
+    
+    
+    topGitHubContributors = []
+    soup = getSoupFromURL(URL).select("tbody > tr")[0:num]
+    i=0
+ 
+    for i in range(0,num):
+        
+        ranking = soup[i].find("th").get_text()
+        subsoup_td = soup[i].select("td")
+        name = subsoup_td[0].find("a").get_text()
+        contributions = int(subsoup_td[1].get_text() )
+        location = subsoup_td[2].get_text()
+        topGitHubContributors.append(Contributor(name,ranking,contributions,location))
+        i += 1
+        
+    return topGitHubContributors 
 
+
+
+TopContributors =  getTopContributors(10) 
+
+for elem in TopContributors: 
+    elem.meanRepoStars = getMeanStars(elem.name)
+    elem.printme()
+
+def getMean(contributor):
+    return contributor.meanRepoStars
+
+#for elem in sorted(TopContributors , key = getMean):
+ #    elem.printme()
+
+
+
+        
+    
+    
+    
+    
+  
+       
 
 
