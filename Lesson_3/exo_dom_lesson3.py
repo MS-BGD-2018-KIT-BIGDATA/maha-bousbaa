@@ -88,14 +88,14 @@ TopContributors =  getTopContributors(10)
 
 for elem in TopContributors: 
     elem.meanRepoStars = getMeanStars(elem.name)
-    elem.printme()
+ #   elem.printme()
 
 def getMean(contributor):
     return contributor.meanRepoStars
 
 print("######################Sorted list ###############################")
       
-topContributorsSorted = sorted(TopContributors, key=getMean)
+topContributorsSorted = sorted(TopContributors, key=getMean,reverse=True)
 for elem in topContributorsSorted: elem.printme()
 
 #for elem in sorted(TopContributors , key = getMean):
