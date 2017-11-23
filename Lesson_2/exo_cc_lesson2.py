@@ -1,32 +1,40 @@
+
+
 import requests
 from bs4 import BeautifulSoup
 
+URL_ordinateur_acer = "https://www.cdiscount.com/informatique/ordinateurs-pc-portables/pc-portables/lf-228394_6-acer.html#_his_"
+URL_ordinateur_dell = "https://www.cdiscount.com/informatique/ordinateurs-pc-portables/pc-portables/lf-228394_6-dell.html#_his_"
 
-url = 'https://www.cdiscount.com/informatique/ordinateurs-pc-portables/pc-portables/lf-228394_6-acer.html#_his_"
-
-def getSoupFromURL(url, method='get', data={}):
-
-  if method == 'get':
+def get_promotions(url):
+    rebates = []
     res = requests.get(url)
-  elif method == 'post':
-    res = requests.post(url, data=data)
-  else:
-    return None
-
-  if res.status_code == 200:
     soup = BeautifulSoup(res.text, 'html.parser')
-    return soup
-  else:
-    return None
+    prdt_blocs = soup.find_all("div", class_="prdtBloc")
+    for product in prdt_blocs:
+        prices = getPrices(product)
+        rebates.append(prices[0] / prices[1])
+    return rebates
 
-def getAmounts(url):
-  soup = getSoupFromURL(url)
-  if soup:
-     return  soup
- 
-      
+def print_promotions(promos):
+    print("ratio promotion:")
+    for promo in promos:
+        print(promo)
 
-  else:
-    0
+def getPrices(tag):
+    current_str_price = tag.find_all("div", class_="prdtPrice")[0].find_all("span", class_ = "price")[0].contents[0]
+    current_price = int(current_str_price)
+    previous_str_price_tag = tag.find_all("div", class_="prdtPInfoT")[
+        0].find_all("div", class_="prdtPrSt")
+    if len(previous_str_price_tag) == 0:
+        previous_price = current_price
+    else:
+        previous_price = int(previous_str_price_tag[0].string.split(",")[0])
+    return previous_price, current_price
 
+print("portable Dell")
+print_promotions(get_promotions(URL_ordinateur_dell))
+
+print("\n portable Acer")
+print_promotions(get_promotions(URL_ordinateur_acer))
 
