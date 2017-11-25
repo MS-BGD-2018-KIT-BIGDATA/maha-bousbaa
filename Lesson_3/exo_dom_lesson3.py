@@ -4,6 +4,8 @@ from functools import reduce
 
 from pygithub3 import Github
 
+# Point of attention : The execution takes 2 minutes 
+
 URL = 'https://gist.githubusercontent.com/paulmillr/2657075/raw/e522ae257f83cb921d4a63d2e5fde4c6065b2fa2/active.md'
 
 f = open("pwd.txt","r") 

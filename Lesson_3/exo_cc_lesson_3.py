@@ -28,7 +28,6 @@ def get_soup_from_url(url):
         return None
  
 
-
 def get_distance(city1,city2):
     
     url= "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=" + city1 +"&destinations=" + city2+ '&key=AIzaSyBrD4WYo3A--zMdL9awoPVPK2zl_zqtt2I'    
@@ -46,7 +45,7 @@ def get_distance(city1,city2):
 cities_distance  = [{'Paris': 'Lyon', 'Jan': 150, 'Feb': 200, 'Mar': 140},
          {'account': 'Alpha Co',  'Jan': 200, 'Feb': 210, 'Mar': 215},
          {'account': 'Blue Inc',  'Jan': 50,  'Feb': 90,  'Mar': 95 }]
-df = pd.DataFrame(sales)
+df = pd.DataFrame(cities_distance)
 
 def getSoupFromURL(url, method='get', data={}):
 
@@ -69,9 +68,10 @@ def getSoupFromURL(url, method='get', data={}):
     except requests.exceptions.ConnectionError as e:
         print("HTTP connexion error or Invalid URL: %s", url)
         return None
+ 
+    
 def getTopCities(num):
-    
-    
+     
     topcities = []
     soup = getSoupFromURL(URL).select("tbody > tr")[0:num]
     i=0

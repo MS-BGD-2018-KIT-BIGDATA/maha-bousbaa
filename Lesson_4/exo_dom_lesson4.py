@@ -72,26 +72,28 @@ def getsubUrls(url):
 # this fill the dataframe with car version, car Km, car price, car description, car "cote" and the type of the seller
     
 def getCarProperties():
-    # Build url based on regions
-    URLS_sub1 = [URL_ROOT + region for region in REGIONS]
+    region_urls = {}
     
-    # Build url based on type of seller ( proprietaire/professionnel)
-    URLS  = [url_sub1 + URL_PART for url_sub1 in URLS_sub1] + \
-                [url_sub1 + URL_PRO for url_sub1 in URLS_sub1]
+    # Build url based on region
+    URLS_sub1 = {region: URL_ROOT+ region for region in REGIONS}
     
+    # Build url based on type of seller (particulier/professionnel)
+    URLS = {region:{'PART': url_sub1 + URL_PART , 'PRO': url_sub1 + URL_PRO} \
+            for region,url_sub1 in URLS_sub1.items()}
+ 
     columnNames=["version","annee","kilometrage","prix","telephone","proprietaire","phone","description","region"]
        
     carRows = []
-    for rootUrl in URLS:
+    
+    #for rootUrl in URLS:
+    for region, urls in URLS.items():
+        for seltype,rootUrl in urls.items():
+            subUrls = getsubUrls(rootUrl)   # get the href related to cars for specific seller type
+            proprietaire =  seltype
+            telephone =''
+            version=''
         
-        subUrls = getsubUrls(rootUrl)
-        
-        
-        proprietaire = 'Professionnel' if rootUrl.endswith('c') else 'Particulier'
-        telephone =''
-        version=''
-        
-        for url in subUrls:
+        for url in subUrls: # sub url to extract car properties (per car)
             print(url)
             soupCar = getSoupFromURL("http:"+ url)
             price = soupCar.find_all(class_= "item_price clearfix")[0].\
@@ -108,7 +110,7 @@ def getCarProperties():
             
             carRow = {'version': version,'annee':annee,\
                           'kilometrage':kilometrage,'prix':price,'telephone':telephone,\
-                          'proprietaire':proprietaire,'region':"", 'description':description}
+                          'proprietaire':proprietaire,'region':region, 'description':description}
             
             carRows.append(carRow)
                
@@ -172,4 +174,4 @@ def getModelFromLaCentrale():
 df_car = getCarProperties()
 df_expensive = df_car[df_car['prix'] > df_car['cote']]
 print(" The list of the cars for which the price is superior than Argus rating regardless of Km:\n" ,\
-      df_expensive[['model','annee','kilometrage','prix','cote','proprietaire','phone']])
+      df_expensive[['model','annee','kilometrage','prix','cote','proprietaire','phone','region']])
